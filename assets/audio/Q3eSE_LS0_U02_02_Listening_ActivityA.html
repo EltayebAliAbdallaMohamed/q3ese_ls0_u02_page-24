@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Template</title>
+  <style>
+    /* Your original CSS unchanged */
+    body {
+      font-family: sans-serif;
+      font-size: larger;
+      font-weight: bold;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 1em;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    #speak {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+    main {
+      max-width: 600px;
+      background: white;
+      padding: 1.5em;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+      background: none;
+      border: 2px solid #0078d4;
+      color: #0078d4;
+      font-size: 20px;
+      margin: 5px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #0078d4;
+      color: white;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    input[type="number"] {
+      font-size: 14px;
+      width: 60px;
+      margin-right: 10px;
+      text-align: center;
+    }
+
+    #keyWords {
+      text-align: center;
+      color: #0078d4;
+      font-size: 1.3em;
+      margin-bottom: 10px;
+    }
+
+    #english {
+      color: #444;
+    }
+
+    #q {
+      background: #0078d4;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .controls {
+      margin-top: 1em;
+      text-align: center;
+    }
+
+    details {
+      margin-top: 0.5em;
+    }
+
+    small {
+      color: #777;
+      font-weight: normal;
+    }
+
+    footer {
+      margin-top: auto;
+      text-align: center;
+      padding: 1em 0;
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    footer span {
+      color: #0078d4;
+      font-weight: bold;
+    }
+
+    section.general.info,
+    section.activity {
+      width: 100%;
+      max-width: 600px;
+      box-sizing: border-box;
+    }
+
+    section.general.info details,
+    section.activity details {
+      display: block;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      margin: 0.5em 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9em;
+    }
+
+    th, td {
+      border: 1px solid #333;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+    #arabic{
+      direction: rtl;
+      text-align: right;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 0.6em;
+      }
+      #q { font-size: 0.9em; }
+      button { font-size: 18px; padding: 4px 8px; }
+    }
+    #objectives{
+      color: red;
+    }
+    #questionBasedOnAudio{
+      color: blue;
+      text-align: left;
+    }
+    main {
+      overflow-y: auto;
+    }
+    #questionBasedOnAudio li,
+      #answer li {
+    margin-bottom: 0.8em;
+    }
+    #questionBasedOnAudio ol { padding-left: 1em; }
+    .tts-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      flex-wrap: wrap; /* keeps it mobile-friendly */
+    }
+  </style>
+</head>
+
+<body role="document">
+
+  <!-- Added role="main" -->
+  <main role="main" aria-label="Lesson player interface">
+
+    <p id="speaker" aria-label="Speaker name"></p>
+    <p id="q" aria-live="polite"></p>
+    <p id="keyWords" aria-label="Keywords"></p>
+
+    <details id="definition" aria-label="Definition section">
+      <summary aria-label="Show or hide definition">Definition</summary>
+      <p id="def"></p>
+    </details>
+
+    <details id="illustrations" style="display:none;" aria-label="Illustration section">
+      <summary aria-label="Show or hide illustration">Illustration</summary>
+      <img id="image" alt="Related illustration" width="200" height="200" style="display:none;">
+    </details>
+
+    <details id="englishDetails" aria-label="English explanation">
+      <summary aria-label="Show or hide English explanation">English:</summary>
+      <p id="english"></p>
+    </details>
+
+    <details id="arabicDetails" aria-label="Arabic explanation">
+      <summary aria-label="Show or hide Arabic explanation">Arabic:</summary>
+      <p id="arabic"></p>
+    </details>
+
+    <p id="refer_to_container"><strong>Refer to:</strong> <span id="refer_to"></span></p>
+    <p id="back_to_container"><strong>Back to:</strong> <span id="back_to"></span></p>
+
+    <!-- ARIA enhancement -->
+    <audio id="audio" controls aria-label="Audio player">
+      <source src="" type="audio/mp3" />
+      Your browser does not support the audio element.
+    </audio>
+
+    <hr>
+
+    <div class="controls" role="group" aria-label="Navigation controls">
+
+      <input 
+        type="number" 
+        id="audioIndex" 
+        min="1" 
+        placeholder="#" 
+        aria-label="Enter clip number"
+      />
+
+      <button id="search" aria-label="Search for audio by number">&#128269;</button>
+
+      <button id="prev" aria-label="Previous audio clip">&#9664;</button>
+      <button id="next" aria-label="Next audio clip">&#9654;</button>
+
+      <label aria-label="Autoplay next audio">
+        <input type="checkbox" id="autoPlay" unchecked aria-checked="false" />
+        Auto play next audio clip
+      </label>
+
+      <div id="questionBasedOnAudio"></div>
+    </div>
+
+    <details aria-label="Text-to-speech options">
+      <summary aria-label="Show or hide text-to-speech controls">TTS</summary>
+
+      <div class="tts-buttons" role="group" aria-label="TTS controls">
+        <button id="speak" aria-label="Text to speech: read all text">TTS-All text</button>
+        <button id="stop" aria-label="Stop text to speech">Stop TTS</button>
+        <button id="speakSelection" aria-label="Text to speech: read selected text">TTS-Selected</button>
+      </div>
+    </details>
+     
+    <div>
+      <details id="answerDetails" aria-label="Answer section">
+        <summary aria-label="Show or hide answer">Answer</summary>
+        <div id="answer"></div>
+      </details>
+    </div>
+
+    <hr>
+
+    <small aria-label="Tip: Use arrow keys">💡 Tip: Use ← / → to navigate.</small>
+  </main>
+
+  <footer role="contentinfo">
+    <p>Created by <span>Eltayeb Mohamed</span> | <span>© 2025 Eltayeb Mohamed</span>. All rights reserved.</p>
+  </footer>
+
+  <!-- JS Unchanged except ARIA support integrated where appropriate -->
+  <script>
+    const utterance = new SpeechSynthesisUtterance();
+    let currentAudioIndex = 0;
+
+    const Sentences = [
+      /* your entire array unchanged */
+
+      //1
+            {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Good afternoon.`,
+        arabic: `مساء الخير.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Good afternoon.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //2
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Thank you for calling`,
+        arabic: `شكراً لاتصالك`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Thank you for calling.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //3
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Al Jaser Online University.`,
+        arabic: `جامعة الجاسر الإلكترونية`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Al Jaser Online University.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //4
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `My name is Sarah.`,
+        arabic: `اسمي سارة.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `My name is Sarah.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //5
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `How may I help you?`,
+        arabic: `كيف يمكنني مساعدتك؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `How may I help you.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //6
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Hi. My name is Layla.`,
+        arabic: `مرحبًا. اسمي ليلى.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Hi  My name is Layla.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //7
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I am interested in your school.`,
+        arabic: `أنا مهتمة بمدرستكم.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I am interested in your school.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //8
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Can you tell me about it?`,
+        arabic: `هل يمكنك أن تخبريني عنها`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Can you tell me about it.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //9
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Of course.`,
+        arabic: `بالطبع.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Of course.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //10
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Al Jaser Online University is a wonderful school.`,
+        arabic: `جامعة الجاسر الإلكترونية هي مدرسة رائعة.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Al Jaser Online University is a wonderful school.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //11
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Professors give lectures online.`,
+        arabic: ` الأساتذة يعطون محاضرات عبر الإنترنت.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Professors give lectures online.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //12
+       {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Students can learn `,
+        arabic: `يمكن للطلاب أن يتعلموا`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Students can learn.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //13
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `anywhere in the world.`,
+        arabic: `في أي مكان في العالم.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `anywhere in the world.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //14
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Do you have Internet access?`,
+        arabic: `هل لديك اتصال بالإنترنت؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Do you have Internet access.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //15
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Yes, I do.`,
+        arabic: `نعم، أفعل.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Yes, I do.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //16
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Great.`,
+        arabic: `عظيم!`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `great.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //17
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Then you can take our classes.`,
+        arabic: `ثم يمكنك حضور دروسنا.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Then you can take our classes.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //18
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Does Al Jaser have a campus?`,
+        arabic: `هل لدى الجاسر حرم جامعي؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Does Al Jaser have a campus.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //19
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `No, we don’t have a campus.`,
+        arabic: `لا، ليس لدينا حرم جامعي.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `No, we don’t have a campus.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //20
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `All of our classes are online.`,
+        arabic: `جميع دروسنا متاحة عبر الإنترنت.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `All of our classes are online.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //21
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `But we do have a really great community.`,
+        arabic: `لكن لدينا مجتمع رائع حقًا.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `But we do have a really great community.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //22
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Really?`,
+        arabic: `حقًا؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Really.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //23
+       {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Can you tell me more about that?`,
+        arabic: `هل يمكنك أن تخبرني المزيد عن ذلك؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Can you tell me more about that.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //24
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Sure.`,
+        arabic: `بالتأكيد.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `sure.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //25
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `We have special chat rooms`,
+        arabic: `لدينا غرف دردشة خاصة`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `We have special chat rooms.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //26
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `where students can talk`,
+        arabic: `حيث يمكن للطلاب التحدث   `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `where students can talk to other students.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //27
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `to other students`,
+        arabic: `إلى طلاب آخرين`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `to other students.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //28
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `with the same interests.`,
+        arabic: `لهم نفس الاهتمامات.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `with the same interests.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //29
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `For example,`,
+        arabic: `على سبيل المثال`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `For example.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //30
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `do you like science?`,
+        arabic: `هل يعجبك العلم؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `do you like science.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //31
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Yes, I do.`,
+        arabic: `نعم، أفعل.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Yes, I do 2.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //32
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Well, you can go to the science chat room`,
+        arabic: `حسنًا، يمكنك الذهاب إلى غرفة دردشة العلوم`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Well, you can go to the science chat room.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //33
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `and talk about science with other students`,
+        arabic: `وتحدث عن العلم مع طلاب آخرين`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `and talk about science with other students.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //34
+       {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Do you like foreign languages?`,
+        arabic: `هل تعجبك اللغات الأجنبية؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Do you like foreign languages.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //35
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Yes, I want to learn a new language.`,
+        arabic: `نعم، أريد أن أتعلم لغة جديدة.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Yes, I want to learn a new language.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //36
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Oh, good!`,
+        arabic: `Oh, good.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Oh, good.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //37
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `You can go to a foreign language chat room`,
+        arabic: `يمكنك الذهاب إلى غرفة دردشة للغة أجنبية.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `You can go to a foreign language chat room.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //38
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `like the French language chat room`,
+        arabic: `مثل غرفة الدردشة باللغة الفرنسية`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `like the French language chat room.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //39
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `or the English language chat room`,
+        arabic: `أو غرفة دردشة اللغة الإنجليزية`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `or the English language chat room.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //40
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `and practice speaking with other students.`,
+        arabic: `و تمارس التحدث مع طلاب آخرين.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `and practice speaking with other students.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //41
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `It’s a great way to improve your skills.`,
+        arabic: `إنها طريقة رائعة لتحسين مهاراتك.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `It’s a great way to improve your skills.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //42
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `You can also be in a club.`,
+        arabic: `يمكنك أيضًا أن تكون في نادٍ.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `You can also be in a club.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //43
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `For example`,
+        arabic: `على سبيل المثال`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `For example 2.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //44
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `you can join a book club.`,
+        arabic: `يمكنك الانضمام إلى نادي الكتاب   `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `you can join a book club or a math club.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //45
+       {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `or a math club.`,
+        arabic: `أو نادي الرياضيات`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `or a math club.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //46
+      
+      //47
+      
+      //48
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `That sounds like fun.`,
+        arabic: `يبدو ذلك ممتعًا.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `That sounds like fun.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //49
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Does the university have a library`,
+        arabic: `هل لدى الجامعة مكتبة؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Does the university have a library.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Yes, we do.`,
+        arabic: `نعم، نحن نفعل.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Yes, we do.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //50
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `It’s an online library.`,
+        arabic: `إنها مكتبة على الإنترنت.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `It’s an online library.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //51
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `You can download things like books`,
+        arabic: `يمكنك تنزيل أشياء مثل الكتب`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `You can download things like books.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //52
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `and magazine articles`,
+        arabic: `ومقالات المجلات`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `and magazine articles.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //53
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Wow, that’s really interesting.`,
+        arabic: `واو، هذا حقًا مثير للاهتمام.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Wow, that’s really interesting.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //54
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `How many students does the university have?`,
+        arabic: `كم عدد الطلاب في الجامعة؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `How many students does the university have.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //55
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Right now`,
+        arabic: ``,
+        refer_to: ``,
+        back_to: ``,
+        audio: `right now.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //56
+       {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `we have about 15,000 students`,
+        arabic: `لدينا حوالي 15,000 طالب`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `we have about 15,000 students.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //57
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `from all over the world`,
+        arabic: `من جميع أنحاء العالم`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `from all over the world.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //58
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `like Asia, the Middle East, and Europe.`,
+        arabic: `مثل آسيا، والشرق الأوسط، وأوروبا.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `like Asia, the Middle East, and Europe.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //59
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Our professors live in different countries`,
+        arabic: `أساتذتنا يعيشون في دول مختلفة`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Our professors live in different countries.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //60
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `like Saudi Arabia`,
+        arabic: `مثل المملكة العربية السعودية`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `like Saudi Arabia.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //61
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `France, and Japan.`,
+        arabic: ``,
+        refer_to: ``,
+        back_to: ``,
+        audio: `France, and Japan.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //62
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I have a full-time job.`,
+        arabic: `لدي وظيفة بدوام كامل.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I have a full-time job.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //63
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Can I take classes in the evenings?`,
+        arabic: ``,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Can I take classes in the evenings.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //64
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `You can watch videos of lectures.`,
+        arabic: `يمكنك مشاهدة مقاطع الفيديو للمحاضرات.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `You can watch videos of lectures.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //65
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `at any time`,
+        arabic: `في أي وقت`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `at any time.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //66
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `You can also take tests at any time`,
+        arabic: `يمكنك أيضًا إجراء الاختبارات في أي وقت.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `You can also take tests at any time.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //67
+       {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `That sounds perfect for me.`,
+        arabic: `هذا يبدو مثالياً بالنسبة لي.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `That sounds perfect for me.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //68
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `What kinds of classes do you have?`,
+        arabic: ``,
+        refer_to: ``,
+        back_to: ``,
+        audio: `What kinds of classes do you have.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //69
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `We have classes in many different subjects`,
+        arabic: `لدينا حصص في العديد من المواد المختلفة.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `We have classes in many different subjects.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //70
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `like math, science, history, and foreign languages`,
+        arabic: `مثل الرياضيات والعلوم والتاريخ واللغات الأجنبية.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `like math, science, history, and foreign languages.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //71
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I see.`,
+        arabic: ``,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I see.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //72
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Thank you so much for all the information`,
+        arabic: `شكراً جزيلاً لك على كل المعلومات.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Thank you so much for all the information.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //73
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `You’re welcome.`,
+        arabic: `على الرحب والسعة.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `You’re welcome.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //74
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Do you have any other questions?`,
+        arabic: `هل لديك أي أسئلة أخرى؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Do you have any other questions.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //75
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `No, not right now.`,
+        arabic: `لا، ليس الآن.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `No, not right now.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //76
+      {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `It was nice talking to you.`,
+        arabic: `كان من اللطيف التحدث معك.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `It was nice talking to you.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //77
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `It was nice talking to you, too.`,
+        arabic: `كان من اللطيف التحدث معك أيضاً.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `It was nice talking to you, too.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //78
+       {
+        speaker: `Layla:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Bye.`,
+        arabic: `وداعاً.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `bye.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //79
+      {
+        speaker: `Sarah:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Goodbye!`,
+        arabic: `وداعاً.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Goodbye.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      
+    ];
+
+    const speakSelectionBtn = document.getElementById("speakSelection");
+    const speakBtn = document.getElementById("speak");
+    const stopBtn = document.getElementById("stop");
+
+    const q = document.getElementById("q");
+    const refer_to = document.getElementById("refer_to");
+    const back_to = document.getElementById("back_to");
+    const speaker = document.getElementById("speaker");
+    const keyWords = document.getElementById("keyWords");
+    const def = document.getElementById("def");
+    const english = document.getElementById("english");
+    const arabic = document.getElementById("arabic");
+    const audio = document.getElementById("audio");
+    const image = document.getElementById("image");
+    const illustrationDetails = document.getElementById("illustrations");
+    const questionBasedOnAudio = document.getElementById("questionBasedOnAudio");
+    const audioIndexInput = document.getElementById("audioIndex");
+    const autoPlayCheckbox = document.getElementById("autoPlay");
+
+    const definitionDetails = document.getElementById("definition");
+    const englishDetails = document.getElementById("englishDetails");
+    const arabicDetails = document.getElementById("arabicDetails");
+    const answer = document.getElementById("answer");
+    const answerDetails = document.getElementById("answerDetails");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+
+    speakBtn.addEventListener("click", () => {
+        const s = Sentences[currentAudioIndex];
+        if (s.english?.trim()) {
+            const cleanedText = s.english.replace(/<br\s*\/?>/gi, ' '); 
+            utterance.text = cleanedText;  
+            speechSynthesis.cancel();      
+            speechSynthesis.speak(utterance);
+        }
+    });
+
+    speakSelectionBtn.addEventListener("click", () => {
+      const selectedText = window.getSelection().toString().trim();
+      if (!selectedText) return;
+      utterance.text = selectedText;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utterance);
+    });
+
+    stopBtn.addEventListener("click", () => {
+      speechSynthesis.cancel();
+    });
+
+    function updateButtonState() {
+      prevBtn.disabled = currentAudioIndex === 0;
+      nextBtn.disabled = currentAudioIndex === Sentences.length - 1;
+    }
+
+    function displayData() {
+      const s = Sentences[currentAudioIndex];
+
+      q.textContent = `${currentAudioIndex + 1}/${Sentences.length}`;
+
+      refer_to.textContent = s.refer_to || "";
+      back_to.textContent = s.back_to || "";
+
+      const referToContainer = document.getElementById("refer_to_container");
+      const backToContainer = document.getElementById("back_to_container");
+
+      referToContainer.style.display = s.refer_to?.trim() ? "block" : "none";
+      backToContainer.style.display = s.back_to?.trim() ? "block" : "none";
+
+      keyWords.innerHTML = s.keyWord || "";
+      speaker.innerHTML = s.speaker || "";
+      def.innerHTML = s.definition || "";
+      english.innerHTML = s.english || "";
+      arabic.innerHTML = s.arabic || "";
+      audio.src = s.audio || "";
+      answer.innerHTML = s.answer || "";
+
+      questionBasedOnAudio.innerHTML = s.audioQuestion?.trim()
+        ? `<details aria-label="Audio question"><summary>Question</summary>${s.audioQuestion}</details>`
+        : "";
+
+      answerDetails.style.display = s.answer?.trim() ? "block" : "none";
+      definitionDetails.style.display = s.definition?.trim() ? "block" : "none";
+      englishDetails.style.display = s.english?.trim() ? "block" : "none";
+      arabicDetails.style.display = s.arabic?.trim() ? "block" : "none";
+
+      if (s.Image && s.Image.trim() !== "" && s.Image !== ".jpg") {
+        image.src = s.Image;
+        image.style.display = "block";
+        illustrationDetails.style.display = "block";
+      } else {
+        image.removeAttribute("src");
+        image.style.display = "none";
+        illustrationDetails.style.display = "none";
+      }
+
+      updateButtonState();
+    }
+
+    function resetDetails() {
+      definitionDetails.open = false;
+      englishDetails.open = false;
+      arabicDetails.open = false;
+      answerDetails.open = false;
+    }
+
+    function nextSentence() {
+      if (currentAudioIndex < Sentences.length - 1) {
+        currentAudioIndex++;
+        displayData();
+        resetDetails();
+        if (autoPlayCheckbox.checked) audio.play().catch(() => {});
+      }
+    }
+
+    function prevSentence() {
+      if (currentAudioIndex > 0) {
+        currentAudioIndex--;
+        displayData();
+        resetDetails();
+        if (autoPlayCheckbox.checked) audio.play().catch(() => {});
+      }
+    }
+
+    nextBtn.addEventListener("click", nextSentence);
+    prevBtn.addEventListener("click", prevSentence);
+
+    document.getElementById("search").addEventListener("click", () => {
+      const index = parseInt(audioIndexInput.value, 10) - 1;
+      if (index >= 0 && index < Sentences.length) {
+        currentAudioIndex = index;
+        displayData();
+      } else {
+        alert(`Enter a number between 1 and ${Sentences.length}`);
+      }
+    });
+
+    audioIndexInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") document.getElementById("search").click();
+    });
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowRight") nextSentence();
+      if (e.key === "ArrowLeft") prevSentence();
+    });
+
+    displayData();
+  </script>
+</body>
+</html>
